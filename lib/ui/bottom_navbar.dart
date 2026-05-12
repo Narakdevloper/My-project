@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:narak_news/contant/app_theme.dart';
 import 'package:narak_news/providers/theme_provider.dart';
+import 'package:narak_news/ui/screens/aboutus_screen.dart';
 import 'package:narak_news/ui/screens/home_screen.dart';
 import 'package:narak_news/ui/screens/search_screen.dart';
-import 'package:narak_news/ui/screens/setting_sreen.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 import 'package:provider/provider.dart';
 
@@ -36,9 +36,9 @@ class BottomNavbar extends StatelessWidget {
           ),
         ),
         PersistentTabConfig(
-          screen: SettingScreen(),
+          screen: AboutusScreen(),
           item: ItemConfig(
-            icon: Icon(Icons.settings_rounded),
+            icon: Icon(Icons.info),
             title: 'Setting',
             activeForegroundColor: AppTheme.primary,
             inactiveForegroundColor: AppTheme.icon(isDark),
