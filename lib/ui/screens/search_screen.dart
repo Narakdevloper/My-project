@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:narak_news/contant/app_theme.dart';
 import 'package:narak_news/models/product_model.dart';
 import 'package:narak_news/providers/api_provider.dart';
+import 'package:narak_news/providers/theme_provider.dart';
 import 'package:narak_news/ui/screens/detail_screen.dart';
+import 'package:narak_news/ui/widgets/movie_list.dart';
+import 'package:provider/provider.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -54,33 +58,33 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _onChanged(String value) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(Duration(milliseconds: 500), () {
-      _search(value);
-    });
+    _debounce = Timer(Duration(milliseconds: 500), () => _search(value));
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().theme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
+      backgroundColor: AppTheme.bg(isDark),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0A0A0F),
+        backgroundColor: AppTheme.bg(isDark),
         automaticallyImplyLeading: false,
         title: TextField(
           controller: _controller,
           focusNode: _focusNode,
           autofocus: false,
-          style: TextStyle(color: Colors.white),
-          cursorColor: const Color(0xFFE50914),
+          style: TextStyle(color: AppTheme.text(isDark)),
+          cursorColor: AppTheme.primary,
           decoration: InputDecoration(
             hintText: 'Search movies...',
-            hintStyle: TextStyle(color: Colors.white38),
+            hintStyle: TextStyle(color: AppTheme.hint(isDark)),
             border: InputBorder.none,
-            prefixIcon: Icon(Icons.search, color: Colors.white38),
+            prefixIcon: Icon(Icons.search, color: AppTheme.hint(isDark)),
             suffixIcon: _controller.text.isNotEmpty
                 ? IconButton(
-                    icon: Icon(Icons.clear, color: Colors.white38),
+                    icon: Icon(Icons.clear, color: AppTheme.hint(isDark)),
                     onPressed: () {
                       _controller.clear();
                       setState(() {
@@ -94,11 +98,11 @@ class _SearchScreenState extends State<SearchScreen> {
           onChanged: _onChanged,
         ),
       ),
-      body: _buildBody(),
+      body: _buildBody(isDark),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(bool isDark) {
     if (!_hasSearched) {
       return Center(
         child: Column(
@@ -106,13 +110,13 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             Icon(
               Icons.movie_filter,
-              color: Colors.white12,
+              color: AppTheme.icon(isDark),
               size: 80,
             ).animate().fadeIn(duration: 600.ms).scaleXY(begin: 0.8, end: 1),
             SizedBox(height: 16),
             Text(
               'Search for movies',
-              style: TextStyle(color: Colors.white24, fontSize: 16),
+              style: TextStyle(color: AppTheme.sub(isDark), fontSize: 16),
             ).animate().fadeIn(delay: 200.ms),
           ],
         ),
@@ -120,9 +124,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(color: const Color(0xFFE50914)),
-      );
+      return Center(child: CircularProgressIndicator(color: AppTheme.primary));
     }
 
     if (_results.isEmpty) {
@@ -132,13 +134,13 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             Icon(
               Icons.search_off,
-              color: Colors.white12,
+              color: AppTheme.icon(isDark),
               size: 80,
             ).animate().fadeIn(duration: 400.ms),
             SizedBox(height: 16),
             Text(
               'No results found',
-              style: TextStyle(color: Colors.white24, fontSize: 16),
+              style: TextStyle(color: AppTheme.sub(isDark), fontSize: 16),
             ).animate().fadeIn(delay: 200.ms),
           ],
         ),
@@ -148,117 +150,14 @@ class _SearchScreenState extends State<SearchScreen> {
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: _results.length,
-      itemBuilder: (context, index) {
-        final movie = _results[index];
-        return GestureDetector(
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => DetailScreen(movie))),
-              child: Container(
-                margin: EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A2E),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                clipBehavior: Clip.hardEdge,
-                child: Row(
-                  children: [
-                    Hero(
-                      tag: 'poster_${movie.id}_search',
-                      child: Image.network(
-                        movie.posterUrl,
-                        width: 90,
-                        height: 130,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          width: 90,
-                          height: 130,
-                          color: const Color(0xFF0A0A0F),
-                          child: Icon(Icons.movie, color: Colors.white24),
-                        ),
-                        loadingBuilder: (_, child, progress) {
-                          if (progress == null) return child;
-                          return Container(
-                            width: 90,
-                            height: 130,
-                            color: const Color(0xFF0A0A0F),
-                          );
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              movie.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.star,
-                                  color: const Color(0xFFE50914),
-                                  size: 13,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  movie.voteAverage.toStringAsFixed(1),
-                                  style: TextStyle(
-                                    color: Colors.white54,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                SizedBox(width: 12),
-                                Icon(
-                                  Icons.calendar_today,
-                                  color: Colors.white38,
-                                  size: 12,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  movie.releaseDate.isNotEmpty
-                                      ? movie.releaseDate.substring(0, 4)
-                                      : 'N/A',
-                                  style: TextStyle(
-                                    color: Colors.white54,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              movie.overview,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.white38,
-                                fontSize: 12,
-                                height: 1.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-            .animate(delay: Duration(milliseconds: index * 60))
-            .fadeIn(duration: 300.ms)
-            .slideX(begin: 0.2, end: 0);
-      },
+      itemBuilder: (context, index) => MovieListItem(
+        movie: _results[index],
+        isDark: isDark,
+        index: index,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => DetailScreen(_results[index])),
+        ),
+      ),
     );
   }
 }

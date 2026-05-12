@@ -15,7 +15,7 @@ class Serchproduct {
     try {
       http.Response response = await http.get(
         Uri.parse(
-          "https://api.themoviedb.org/3/search/movie?api_key=$Kapikey&query=$title",
+          "https://api.themoviedb.org/3/search/movie?api_key=$kApiKey&query=$title",
         ),
       );
       if (response.statusCode == 200) {
@@ -34,7 +34,7 @@ class Service {
   Future<List<Movie>> readapi({int page = 1}) async {
     try {
       http.Response response = await http.get(
-        Uri.parse("$kbareseUrl&page=$page"),
+        Uri.parse("$kBaseUrl &page=$page"),
       );
       if (response.statusCode == 200) {
         return await compute(_parseMovies, response.body);

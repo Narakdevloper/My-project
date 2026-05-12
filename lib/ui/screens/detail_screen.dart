@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:narak_news/models/product_model.dart';
+import 'package:narak_news/providers/theme_provider.dart';
+import 'package:narak_news/ui/widgets/animated_body.dart';
+import 'package:provider/provider.dart';
 
 class DetailScreen extends StatelessWidget {
   final Movie movie;
@@ -7,14 +10,20 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().theme;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subColor = isDark ? Colors.white54 : Colors.black54;
+    final cardColor = Theme.of(context).cardColor;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0F),
+      backgroundColor: bgColor,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             expandedHeight: 350,
             pinned: true,
-            backgroundColor: const Color(0xFF0A0A0F),
+            backgroundColor: bgColor,
             leading: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Container(
@@ -36,7 +45,7 @@ class DetailScreen extends StatelessWidget {
                       movie.backdropUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFF1A1A2E),
+                        color: cardColor,
                         child: Icon(
                           Icons.movie,
                           color: Colors.white24,
@@ -50,7 +59,7 @@ class DetailScreen extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, const Color(0xFF0A0A0F)],
+                        colors: [Colors.transparent, bgColor],
                       ),
                     ),
                   ),
@@ -108,7 +117,7 @@ class DetailScreen extends StatelessWidget {
                                   SizedBox(width: 12),
                                   Icon(
                                     Icons.star,
-                                    color: const Color(0xFFE50914),
+                                    color: Color(0xFFE50914),
                                     size: 12,
                                   ),
                                   SizedBox(width: 4),
@@ -131,122 +140,14 @@ class DetailScreen extends StatelessWidget {
               ),
             ),
           ),
-          SliverToBoxAdapter(child: _AnimatedBody(movie: movie)),
-        ],
-      ),
-    );
-  }
-}
-
-class _AnimatedBody extends StatefulWidget {
-  final Movie movie;
-  const _AnimatedBody({required this.movie});
-
-  @override
-  State<_AnimatedBody> createState() => _AnimatedBodyState();
-}
-
-class _AnimatedBodyState extends State<_AnimatedBody>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnim;
-  late Animation<Offset> _slideAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 600),
-    );
-    _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _slideAnim = Tween<Offset>(
-      begin: Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _fadeAnim,
-      child: SlideTransition(
-        position: _slideAnim,
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  _StatChip(
-                    icon: Icons.thumb_up_alt_outlined,
-                    label: '${widget.movie.voteCount} votes',
-                  ),
-                  SizedBox(width: 10),
-                  _StatChip(
-                    icon: Icons.trending_up,
-                    label: widget.movie.popularity.toStringAsFixed(0),
-                  ),
-                ],
-              ),
-              SizedBox(height: 24),
-              Text(
-                'SYNOPSIS',
-                style: TextStyle(
-                  color: const Color(0xFFE50914),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 4,
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                widget.movie.overview.isNotEmpty
-                    ? widget.movie.overview
-                    : 'No description available.',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                  height: 1.7,
-                ),
-              ),
-              SizedBox(height: 40),
-            ],
+          SliverToBoxAdapter(
+            child: AnimatedBody(
+              movie: movie,
+              textColor: textColor,
+              subColor: subColor,
+              cardColor: cardColor,
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _StatChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A2E),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white54, size: 14),
-          SizedBox(width: 6),
-          Text(label, style: TextStyle(color: Colors.white54, fontSize: 12)),
         ],
       ),
     );

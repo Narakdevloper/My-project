@@ -8,13 +8,37 @@ class CountApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool theme = context.watch<ThemeProvider>().theme;
+    bool isDark = context.watch<ThemeProvider>().theme;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: BottomNavbar(),
-      themeMode: theme ? ThemeMode.dark : ThemeMode.light,
-      theme: ThemeData(brightness: Brightness.light),
-      darkTheme: ThemeData(brightness: Brightness.dark),
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+      theme: ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.light(
+          primary: const Color(0xFFE50914),
+          surface: Colors.grey.shade100,
+        ),
+        cardColor: Colors.grey.shade100,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+        ),
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF0A0A0F),
+        colorScheme: ColorScheme.dark(
+          primary: const Color(0xFFE50914),
+          surface: const Color(0xFF1A1A2E),
+        ),
+        cardColor: const Color(0xFF1A1A2E),
+        appBarTheme: AppBarTheme(
+          backgroundColor: const Color(0xFF0A0A0F),
+          foregroundColor: Colors.white,
+        ),
+      ),
     );
   }
 }
